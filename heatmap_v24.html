@@ -336,8 +336,6 @@ body {
 <div class="notes">
   <strong>Methodology:</strong>
   <span id="methodology-note"></span>
-  <br><br>
-  <a class="methodology-link" id="methodology-link" target="_top" rel="noopener"></a>
 </div>
 
 <div class="credit-bar">
@@ -392,9 +390,6 @@ function applyTexts() {
   document.getElementById('lbl-speed').textContent = TEXTS.labelSpeed + ':';
   document.getElementById('lt-prefix').textContent = TEXTS.legendTitlePrefix;
   document.getElementById('methodology-note').textContent = TEXTS.methodologyNote;
-  const ml = document.getElementById('methodology-link');
-  ml.textContent = TEXTS.methodologyLinkText;
-  ml.href = TEXTS.methodologyLinkUrl;
   document.getElementById('play-btn').setAttribute('aria-label', TEXTS.labelPlay);
 }
 
