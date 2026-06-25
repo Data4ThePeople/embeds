@@ -30,9 +30,10 @@
     font-family:'Inter',system-ui,sans-serif;
     -webkit-font-smoothing:antialiased;
     padding:28px 20px 60px;
+    overflow-x:hidden;
   }
 
-  .wrap{max-width:1180px;margin:0 auto;}
+  .wrap{max-width:1180px;width:100%;margin:0 auto;box-sizing:border-box;}
 
   /* ---------- Header ---------- */
   header{
@@ -278,7 +279,7 @@
   .na{color:var(--ink-soft);font-style:italic;}
 
   /* range bar */
-  .range-cell{min-width:170px;width:30%;}
+  .range-cell{min-width:150px;width:auto;}
   th.range-header{
     white-space:normal;
     max-width:220px;
@@ -1256,7 +1257,7 @@
   }
 
   function positionTip(evt){
-    const isMobile = window.innerWidth <= 700;
+    const isMobile = window.innerWidth <= 920;
     if(isMobile){
       // CSS pins it to a bottom sheet position; nothing to compute.
       return;
@@ -1301,11 +1302,10 @@
         hideTip();
         return;
       }
-      evt.preventDefault();
       const touch = evt.touches[0];
       showTip(bar, { clientX: touch.clientX, clientY: touch.clientY });
       tip.dataset.openFor = bar.dataset.title + bar.dataset.p10;
-    }, { passive:false });
+    }, { passive:true });
   }
 
   wireTooltip(tbody);
