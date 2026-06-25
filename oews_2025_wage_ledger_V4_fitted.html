@@ -1270,7 +1270,7 @@
   }
 
   function positionTip(evt){
-    const isMobile = window.innerWidth <= 1100;
+    const isMobile = window.innerWidth <= 830;
     if(isMobile){
       // CSS pins it to a bottom sheet position; nothing to compute.
       return;
@@ -1322,6 +1322,14 @@
   }
 
   wireTooltip(tbody);
+  wireTooltip(cards);
+
+  // tap anywhere else to dismiss the mobile tooltip
+  document.addEventListener('touchstart', (evt)=>{
+    if(!evt.target.closest('.range-bar')){
+      hideTip();
+    }
+  }, { passive:true });
 </script>
 </body>
 </html>
