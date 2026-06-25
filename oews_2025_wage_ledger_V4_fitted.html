@@ -97,6 +97,7 @@
   .stat{
     background:var(--paper-2);
     padding:14px 18px;
+    min-width:0;
   }
   .stat .num{
     font-family:'Fraunces',serif;
@@ -131,6 +132,8 @@
     background:var(--paper-2);
     color:var(--ink);
     border-radius:3px;
+    box-sizing:border-box;
+    min-width:0;
   }
   .controls input[type="search"]{
     flex:1 1 240px;
@@ -690,6 +693,8 @@
 
   @container ledger (max-width:830px){
     body{padding:18px 14px 50px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stat{padding:12px 14px;}
     .table-scroll{display:none;}
     .cards{display:block;}
     .mobile-only-control{display:block;}
@@ -1255,7 +1260,12 @@
     return v === '' || v === null || v === undefined ? '—' : '$' + Math.round(Number(v)).toLocaleString('en-US');
   }
 
+  function isCardMode(){
+    return window.innerWidth <= 830;
+  }
+
   function showTip(bar, evt){
+    if(isCardMode()) return;
     const d = bar.dataset;
     tip.innerHTML = `
       <div class="tip-title">${d.title}</div>
@@ -1270,11 +1280,7 @@
   }
 
   function positionTip(evt){
-    const isMobile = window.innerWidth <= 830;
-    if(isMobile){
-      // CSS pins it to a bottom sheet position; nothing to compute.
-      return;
-    }
+    if(isCardMode()) return;
     const margin = 14;
     let x = evt.clientX + margin;
     let y = evt.clientY + margin;
