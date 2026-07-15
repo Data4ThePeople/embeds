@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Population by County Income per Resident, 1969&ndash;2024</title>
+<style>
+  :root{--paper:#FBFAF7; --ink:#1F1D1A; --faint:#8A8578; --rule:#E3DFD3; --teal:#085041; --gold:#B8860B; --verm:#D55E00; --dur:.4s;}
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:Georgia,'Times New Roman',serif; padding:20px 16px 12px;}
+  .wrap{max-width:860px; margin:0 auto;}
+  h1{font-size:clamp(20px,3.4vw,28px); font-weight:700; line-height:1.15;}
+  .sub{font-size:clamp(12px,1.8vw,14px); color:var(--faint); margin-top:6px; line-height:1.45; font-family:system-ui,sans-serif;}
+  .controls{display:flex; align-items:center; gap:12px; margin:14px 0 8px; font-family:system-ui,sans-serif; flex-wrap:wrap;}
+  button#play{background:var(--teal); color:var(--paper); border:none; border-radius:4px; padding:8px 18px; font-size:14px; font-weight:600; cursor:pointer; min-width:88px; font-family:inherit;}
+  input[type=range]{flex:1; accent-color:var(--teal); cursor:pointer; min-width:120px;}
+  .grp{display:flex; border:1px solid var(--rule); border-radius:4px; overflow:hidden;}
+  .grp button{background:var(--paper); color:var(--faint); border:none; padding:7px 11px; font-size:12.5px; cursor:pointer; font-family:inherit;}
+  .grp button + button{border-left:1px solid var(--rule);}
+  .grp button.on{background:var(--teal); color:var(--paper); font-weight:600;}
+  .legend{display:flex; gap:16px; font-family:system-ui,sans-serif; font-size:11.5px; margin:2px 0 6px; flex-wrap:wrap;}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .chip{width:11px; height:11px; border-radius:2px; display:inline-block;}
+  .stage{position:relative; border-top:1px solid var(--rule); padding-top:8px;}
+  .ghost{position:absolute; left:52px; top:16px; font-size:clamp(56px,11vw,96px); font-weight:700; color:var(--ink); opacity:0.07; line-height:1; pointer-events:none; font-variant-numeric:tabular-nums;}
+  svg{width:100%; height:auto; display:block;}
+  .bar{fill:#6F6A5D; transition:height var(--dur) ease, y var(--dur) ease;}
+  .seg{transition:height var(--dur) ease, y var(--dur) ease;}
+  .axis text{font-family:system-ui,sans-serif; font-size:11px; fill:var(--faint);}
+  .axis line{stroke:var(--rule);}
+  .medline{stroke:var(--ink); stroke-width:2; transition:x1 var(--dur) ease, x2 var(--dur) ease;}
+  .medlbl{font-family:system-ui,sans-serif; font-size:12px; font-weight:600; fill:var(--ink);}
+  .boxtitle{font-family:system-ui,sans-serif; font-size:11.5px; font-weight:700; fill:var(--ink);}
+  .boxnote{font-family:system-ui,sans-serif; font-size:10px; fill:var(--faint);}
+  .count{font-family:system-ui,sans-serif; font-size:15px; font-weight:700; fill:var(--ink); font-variant-numeric:tabular-nums;}
+  .count.zero{font-size:10.5px; font-weight:600;}
+  .tetontag{font-family:system-ui,sans-serif; font-size:10.5px; font-weight:700; fill:var(--verm);}
+  .blbl{font-family:system-ui,sans-serif; font-size:9.5px; fill:var(--faint); font-variant-numeric:tabular-nums;}
+  .slbl{font-family:system-ui,sans-serif; font-size:10.5px; font-weight:700; fill:var(--paper); font-variant-numeric:tabular-nums;}
+  .divider{stroke:var(--rule); stroke-dasharray:4 4;}
+  .foot{margin-top:12px; padding-top:10px; border-top:1px solid var(--rule); font-family:system-ui,sans-serif; font-size:10.5px; color:var(--faint); line-height:1.55;}
+  @media (max-width:520px){
+    input[type=range]{flex-basis:100%; order:5;}
+    body{padding:14px 10px 10px;}
+  }
+  @media (max-width:560px){
+    .axis text{font-size:20px;}
+    .blbl{display:none;}
+    .slbl{font-size:19px;}
+    .count{font-size:26px;}
+    .count.zero{font-size:15px;}
+    .boxtitle{font-size:20px;}
+    .boxnote{font-size:15px;}
+    .medlbl{font-size:21px;}
+    .tetontag{font-size:18px;}
+    .medline{stroke-width:3.5;}
+  }
+  @media (prefers-reduced-motion: reduce){ .bar,.seg,.medline{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>U.S. Population by County Income per Resident, 1969&ndash;2024</h1>
+  <div class="sub">U.S. counties grouped by income per resident, 1969&ndash;2024, in 2024 dollars. Each bar counts the people living in counties in a $10,000 income-per-resident range. The box on the right counts people living in counties above $150,000, on its own magnified scale. Counties with at least 10,000 residents today. Press play.</div>
+
+  <div class="controls">
+    <button id="play">&#9654; Play</button>
+    <div class="grp" id="speed">
+      <button data-ms="700">1&times;</button><button data-ms="400" class="on">2&times;</button><button data-ms="200">3&times;</button>
+    </div>
+    <input type="range" id="scrub" min="1969" max="2024" value="1969" step="1" aria-label="Year">
+  </div>
+  <div class="legend">
+    <span><i class="chip" style="background:var(--teal)"></i>$150k&ndash;200k</span>
+    <span><i class="chip" style="background:var(--gold)"></i>$200k&ndash;300k</span>
+    <span><i class="chip" style="background:var(--verm)"></i>$300k+</span>
+  </div>
+
+  <div class="stage">
+    <div class="ghost" id="ghost">1969</div>
+    <svg id="chart" viewBox="0 0 860 430" role="img" aria-label="Animated histogram of county income per resident with a magnified panel for counties above 150 thousand dollars"></svg>
+  </div>
+
+  <div class="foot">
+    <b>Source:</b> Bureau of Economic Analysis, Local Area Personal Income table CAINC4 (per capita personal income, all sources), converted to 2024 dollars with the BLS CPI-U annual average. The y-axis counts people using each county's population. The $150k+ box uses its own scale (0 to 7 million people) so its growth is visible; the main chart's scale reaches 115 million. The median marker shows the income per resident of the county where the middle American lives. data4thepeople.com
+  </div>
+</div>
+
+<script>
+const PACK = {"frames":{"1969":{"c":[6726132.0,50003057.0,97155617.0,35486709.0,2760589.0,1543762.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":33357},"1970":{"c":[5281625.0,49909135.0,97343080.0,38852577.0,3073164.0,1727783.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":33475},"1971":{"c":[3966972.0,45103882.0,102235323.0,41073705.0,4544881.0,731289.0,1520846.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":34176},"1972":{"c":[2108757.0,35522293.0,104158306.0,50697608.0,6864722.0,749105.0,1508116.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":36098},"1973":{"c":[1114362.0,27953293.0,102206099.0,61979930.0,8056546.0,721413.0,1660514.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":37540},"1974":{"c":[1203839.0,31841278.0,104929949.0,58514793.0,6920358.0,2090909.0,177998.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":36713},"1975":{"c":[1327727.0,32669352.0,105991224.0,58591637.0,7150068.0,1769566.0,183726.0,0.0,51765.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":36348},"1976":{"c":[904473.0,26960868.0,101999649.0,68411273.0,8946477.0,2164261.0,361292.0,55983.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":37553},"1977":{"c":[543298.0,23483633.0,98588596.0,76105716.0,10479871.0,932100.0,1859972.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":38695},"1978":{"c":[258341.0,18976349.0,87793056.0,88799868.0,14999223.0,1768860.0,1705374.0,19428.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":40028},"1979":{"c":[184712.0,20638074.0,91528125.0,84995581.0,16068434.0,1692090.0,1714225.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":39590},"1980":{"c":[526217.0,26168701.0,101724035.0,72685314.0,15627174.0,2445251.0,276710.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":38373},"1981":{"c":[274175.0,25726954.0,104891226.0,71530640.0,15578339.0,3494751.0,176617.0,4396.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":38364},"1982":{"c":[313886.0,26085262.0,104626676.0,75434788.0,13693810.0,1789996.0,1903834.0,0.0,4278.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":38238},"1983":{"c":[413893.0,22205126.0,97728981.0,81778706.0,16371866.0,5497390.0,1957893.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":39371},"1984":{"c":[106846.0,16303484.0,85230206.0,94624455.0,22972943.0,6776319.0,1980706.0,4878.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":41151},"1985":{"c":[130542.0,14900230.0,77586834.0,96529926.0,30044625.0,7406348.0,2075232.0,1464286.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":42308},"1986":{"c":[116028.0,12716016.0,67777020.0,100302896.0,37051649.0,10666767.0,2069036.0,1699215.0,0.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":43717},"1987":{"c":[98495.0,12907239.0,69588110.0,82057922.0,53559283.0,9210979.0,5462351.0,224938.0,1481531.0,0.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":43723},"1988":{"c":[99613.0,10412463.0,58111745.0,86906304.0,58249609.0,15058060.0,5394642.0,1100772.0,0.0,1484183.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":45139},"1989":{"c":[118861.0,8287142.0,52826006.0,91303796.0,58714841.0,18613269.0,6754398.0,1104219.0,0.0,0.0,1486046.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":45970},"1990":{"c":[130131.0,7963928.0,59197528.0,90190533.0,58821211.0,14877831.0,8260931.0,1117428.0,6048.0,0.0,0.0,1487073.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":45524},"1991":{"c":[91004.0,7536195.0,68096835.0,100965656.0,42728460.0,16305933.0,7947127.0,245541.0,6235.0,1483644.0,0.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":44716},"1992":{"c":[94438.0,5333456.0,60841940.0,106038624.0,49923796.0,15520862.0,8291012.0,1404248.0,0.0,0.0,1485877.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":45390},"1993":{"c":[87648.0,4957563.0,59555993.0,113355228.0,46814960.0,16199344.0,8426440.0,1405570.0,13733.0,0.0,1493582.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":45712},"1994":{"c":[90856.0,3976528.0,55094488.0,114569206.0,53289732.0,15724540.0,9814646.0,1401682.0,28659.0,0.0,1503909.0,0.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":46568},"1995":{"c":[93240.0,3941885.0,53050143.0,109586023.0,62120577.0,15867480.0,9593263.0,2574703.0,268705.0,0.0,0.0,1514184.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":47237},"1996":{"c":[95589.0,3469763.0,47951149.0,107920617.0,68860100.0,17919671.0,10053932.0,3641116.0,238705.0,30013.0,0.0,1521415.0,0.0,0.0],"seg":[0.0,0.0,0.0],"med":48117},"1997":{"c":[51888.0,3085685.0,43622184.0,97350158.0,77934895.0,20761137.0,15095486.0,4328136.0,905632.0,272899.0,0.0,0.0,1527384.0,0.0],"seg":[0.0,0.0,0.0],"med":49163},"1998":{"c":[52520.0,2826728.0,34365908.0,87535666.0,79382823.0,35791901.0,15038291.0,9661852.0,1660956.0,0.0,261589.0,14886.0,0.0,1531067.0],"seg":[0.0,0.0,0.0],"med":50972},"1999":{"c":[53226.0,2670144.0,32348725.0,85275614.0,82610447.0,38867880.0,10450824.0,12622967.0,3663071.0,918532.0,246269.0,32753.0,0.0,1535624.0],"seg":[0.0,0.0,0.0],"med":51849},"2000":{"c":[53733.0,2486275.0,28865361.0,76957057.0,89030891.0,40302987.0,13674566.0,13136568.0,4896124.0,3181303.0,0.0,247520.0,18381.0,14817.0],"seg":[1540547.0,0.0,0.0],"med":53247},"2001":{"c":[0.0,1943152.0,27945650.0,80597305.0,89082039.0,39408093.0,14338778.0,13094945.0,6426377.0,2551978.0,0.0,0.0,266519.0,15013.0],"seg":[1555729.0,0.0,0.0],"med":52991},"2002":{"c":[0.0,1340967.0,28062281.0,81629294.0,93468285.0,40877558.0,13462633.0,11896380.0,7166697.0,135448.0,0.0,246225.0,33935.0,0.0],"seg":[1555382.0,0.0,0.0],"med":53183},"2003":{"c":[0.0,1257217.0,26418945.0,80908294.0,95980147.0,40605561.0,14684016.0,14122849.0,6209161.0,325299.0,0.0,245054.0,15217.0,19066.0],"seg":[1562154.0,0.0,0.0],"med":53225},"2004":{"c":[0.0,1170520.0,22289071.0,81083320.0,96917816.0,44192440.0,13299830.0,15527100.0,6419770.0,2304429.0,0.0,243769.0,0.0,1585167.0],"seg":[19467.0,0.0,0.0],"med":54574},"2005":{"c":[0.0,1171899.0,22465122.0,79360168.0,91626380.0,52186372.0,14672017.0,14710388.0,4844365.0,4861817.0,17914.0,244206.0,0.0,0.0],"seg":[1608604.0,0.0,0.0],"med":54858},"2006":{"c":[0.0,1124315.0,19558669.0,76367486.0,81813565.0,62791226.0,22155146.0,11617734.0,6310857.0,4415907.0,2578428.0,49216.0,244580.0,0.0],"seg":[1593675.0,20014.0,0.0],"med":56304},"2007":{"c":[0.0,1051084.0,15934176.0,72324420.0,88010889.0,65522227.0,21177525.0,10020946.0,9635050.0,5303107.0,2646733.0,0.0,246248.0,0.0],"seg":[1597216.0,20472.0,0.0],"med":56825},"2008":{"c":[0.0,281362.0,16027640.0,73718163.0,91129866.0,61300625.0,24926272.0,15674402.0,6485043.0,3574411.0,1169056.0,50641.0,380900.0,0.0],"seg":[1603476.0,20988.0,0.0],"med":56050},"2009":{"c":[0.0,258517.0,17726207.0,84053570.0,93064102.0,62823928.0,17913103.0,11774898.0,5723222.0,3786670.0,264989.0,0.0,17008.0,0.0],"seg":[1604663.0,0.0,0.0],"med":54733},"2010":{"c":[0.0,141576.0,14596674.0,79451343.0,98913060.0,65638394.0,20003665.0,9428591.0,6918027.0,4397968.0,462304.0,17142.0,14505.0,0.0],"seg":[1590931.0,21294.0,0.0],"med":55176},"2011":{"c":[0.0,129301.0,13613123.0,73255201.0,99533377.0,66623135.0,25254169.0,9575372.0,9246463.0,3735423.0,1046775.0,273037.0,0.0,139297.0],"seg":[1618186.0,21406.0,0.0],"med":56137},"2012":{"c":[0.0,117422.0,14171658.0,71000600.0,95483799.0,65531128.0,27269008.0,15501408.0,10139521.0,2408092.0,2807189.0,294951.0,27314.0,17183.0],"seg":[1787293.0,21614.0,0.0],"med":56593},"2013":{"c":[0.0,117413.0,13859375.0,76329757.0,98131961.0,66888305.0,22263885.0,15678123.0,9408848.0,1554980.0,2577926.0,328730.0,17301.0,0.0],"seg":[1802941.0,22293.0,0.0],"med":55909},"2014":{"c":[0.0,86750.0,12104707.0,70555188.0,96507380.0,70821967.0,26733595.0,11577271.0,14405119.0,3900581.0,1024882.0,1660835.0,295482.0,0.0],"seg":[1834997.0,22747.0,0.0],"med":57251},"2015":{"c":[0.0,75235.0,7056484.0,58605692.0,95920158.0,59540720.0,52258988.0,15776572.0,12714887.0,3738424.0,4592619.0,183972.0,1632460.0,302930.0],"seg":[1694815.0,23015.0,0.0],"med":58973},"2016":{"c":[0.0,76758.0,7007802.0,56968939.0,97128814.0,66146518.0,46727811.0,15148742.0,11556932.0,7561193.0,3696494.0,993783.0,770258.0,1177475.0],"seg":[17676.0,1707302.0,0.0],"med":59566},"2017":{"c":[0.0,64850.0,5895270.0,52154963.0,94043630.0,67818816.0,49798763.0,19922438.0,11846047.0,8855056.0,1715344.0,3008107.0,0.0,931259.0],"seg":[1202082.0,1710612.0,0.0],"med":60781},"2018":{"c":[0.0,65965.0,4736809.0,49491180.0,86053342.0,73349967.0,53960345.0,19302220.0,10695837.0,13619278.0,2048950.0,1732696.0,1990696.0,0.0],"seg":[2143410.0,1718114.0,0.0],"med":61733},"2019":{"c":[0.0,67988.0,4061271.0,41531301.0,84237239.0,82233406.0,53960733.0,20603459.0,11408064.0,11647132.0,5285722.0,1371722.0,2315007.0,40517.0],"seg":[2124823.0,1719879.0,23266.0],"med":63328},"2020":{"c":[0.0,68345.0,1968999.0,22568051.0,78041889.0,91356327.0,48912821.0,36376610.0,15126321.0,12970027.0,8847561.0,790002.0,1395677.0,1924802.0],"seg":[1983089.0,1679602.0,23384.0],"med":67305},"2021":{"c":[0.0,0.0,478027.0,13615357.0,67454811.0,82362430.0,64024181.0,45358966.0,17149987.0,10443392.0,11789365.0,4651035.0,1441695.0,387316.0],"seg":[2977856.0,2376648.0,23613.0],"med":69613},"2022":{"c":[0.0,70917.0,2359155.0,30846968.0,78432400.0,83769441.0,49349893.0,36991601.0,12990516.0,17099594.0,1989832.0,5206413.0,1762648.0,17083.0],"seg":[3885348.0,1657114.0,23341.0],"med":65928},"2023":{"c":[0.0,71116.0,2617766.0,28628821.0,75727097.0,82686113.0,49564400.0,42408020.0,15111529.0,14707838.0,5177324.0,5043044.0,1341984.0,686914.0],"seg":[3731441.0,1692858.0,23368.0],"med":66985},"2024":{"c":[0.0,55549.0,2502753.0,23471155.0,74043974.0,85212538.0,60234139.0,40610544.0,14552836.0,12703464.0,9283419.0,5022015.0,1623186.0,281897.0],"seg":[4806390.0,1745677.0,23272.0],"med":68414}},"ymax":114569206.0,"boxmax":6575339.0};
+const W=860, H=430, ML=50, MT=30, MB=46;
+const MAIN_W = 600;           // main histogram inner width
+const GAP = 44;               // divider gap
+const BOX_X = ML+MAIN_W+GAP;  // overflow panel x
+const BOX_W = W-BOX_X-16;
+const YMAX = PACK.ymax*1.05, BOXMAX = PACK.boxmax*1.06;
+const NB = 14; // 10k..150k
+const ih = H-MT-MB;
+const svg=document.getElementById('chart'), ghost=document.getElementById('ghost'),
+      scrub=document.getElementById('scrub'), playBtn=document.getElementById('play');
+const COLORS=['#085041','#B8860B','#D55E00'];
+const fmt$ = v => '$' + Math.round(v).toLocaleString('en-US');
+const FMT_BAR = v => v>=1e6 ? (v/1e6).toFixed(v>=10e6?0:1)+'M' : Math.round(v/1e3)+'k';
+const FMT_SEG = v => v>=1e6 ? (v/1e6).toFixed(1)+'M' : Math.round(v/1e3)+'k';
+
+function build(){
+  const bw = MAIN_W/NB;
+  let s='<g class="axis">';
+  for (const g of [0,40e6,80e6,110e6]){
+    const y=MT+ih-(g/YMAX)*ih;
+    s+=`<line x1="${ML}" y1="${y}" x2="${ML+MAIN_W}" y2="${y}"/><text x="${ML-6}" y="${y+4}" text-anchor="end">${g?g/1e6+'M':'0'}</text>`;
+  }
+  for (let v=10000; v<=150000; v+=20000){
+    const x=ML+((v-10000)/140000)*MAIN_W;
+    s+=`<text x="${x}" y="${H-MB+18}" text-anchor="middle">$${v/1000}k</text>`;
+  }
+  s+=`<text x="${ML}" y="${MT-12}" style="font-weight:600; fill:#1F1D1A">people</text>`;
+  // box mini axis
+  for (const g of [0,3e6,6e6]){
+    const y=MT+ih-(g/BOXMAX)*ih;
+    s+=`<line x1="${BOX_X-4}" y1="${y}" x2="${BOX_X}" y2="${y}"/><text x="${BOX_X-8}" y="${y+4}" text-anchor="end">${g?g/1e6+'M':'0'}</text>`;
+  }
+  s+='</g>';
+  s+=`<line class="divider" x1="${ML+MAIN_W+GAP/2}" y1="${MT-4}" x2="${ML+MAIN_W+GAP/2}" y2="${MT+ih}"/>`;
+  s+=`<text class="boxtitle" x="${BOX_X+BOX_W/2}" y="${MT-12}" text-anchor="middle">$150k and up</text>`;
+  s+=`<text class="boxnote" x="${BOX_X+BOX_W/2}" y="${MT+2}" text-anchor="middle">(own scale, 0&ndash;7M people)</text>`;
+  s+='<g id="bars">';
+  for (let i=0;i<NB;i++) s+=`<rect class="bar" x="${ML+i*bw+1}" width="${bw-2}" y="${MT+ih}" height="0"/>`;
+  s+='</g>';
+  s+='<g id="blbls">';
+  for (let i=0;i<NB;i++) s+=`<text class="blbl" x="${ML+i*bw+bw/2}" y="0" text-anchor="middle"></text>`;
+  s+='</g>';
+  for (let k=0;k<3;k++) s+=`<text class="slbl" id="slbl${k}" x="${BOX_X+BOX_W/2}" y="0" text-anchor="middle" style="display:none"></text>`;
+  for (let k=0;k<3;k++) s+=`<rect class="seg" id="seg${k}" x="${BOX_X+8}" width="${BOX_W-16}" y="${MT+ih}" height="0" fill="${COLORS[k]}"/>`;
+  s+=`<text class="count" id="boxcount" x="${BOX_X+BOX_W/2}" y="${MT+ih-6}" text-anchor="middle"></text>`;
+  s+=`<text class="tetontag" id="ttag" x="${BOX_X-8}" y="0" text-anchor="end" style="display:none">Teton, WY (23k people) &#8594;</text>`;
+  s+=`<line class="medline" id="med" x1="${ML}" x2="${ML}" y1="${MT+ih}" y2="${MT+ih-46}"/>`;
+  s+=`<text class="medlbl" id="medlbl" x="${ML}" y="${MT+ih-54}"></text>`;
+  svg.innerHTML=s;
+}
+
+function render(){
+  const d=PACK.frames[year];
+  ghost.textContent=year; scrub.value=year;
+  const bw=MAIN_W/NB;
+  const bars=svg.querySelectorAll('#bars .bar');
+  const blbls=svg.querySelectorAll('#blbls .blbl');
+  d.c.forEach((cnt,i)=>{
+    const bh=(cnt/YMAX)*ih;
+    bars[i].setAttribute('height',bh); bars[i].setAttribute('y',MT+ih-bh);
+    if (cnt>=1){ blbls[i].textContent=FMT_BAR(cnt); blbls[i].setAttribute('y',MT+ih-bh-4); }
+    else blbls[i].textContent='';
+  });
+  // stacked box
+  let acc=0;
+  for (let k=0;k<3;k++){
+    const h=(d.seg[k]/BOXMAX)*ih;
+    const el=document.getElementById('seg'+k);
+    el.setAttribute('height',h);
+    el.setAttribute('y', MT+ih-(acc+d.seg[k])/BOXMAX*ih);
+    const sl=document.getElementById('slbl'+k), sh=(d.seg[k]/BOXMAX)*ih;
+    if (sh>=15){ sl.style.display=''; sl.textContent=FMT_SEG(d.seg[k]); sl.setAttribute('y', MT+ih-(acc+d.seg[k]/2)/BOXMAX*ih+4); }
+    else sl.style.display='none';
+    acc+=d.seg[k];
+  }
+  const total=d.seg[0]+d.seg[1]+d.seg[2];
+  const topy=MT+ih-(total/BOXMAX)*ih;
+  const bc=document.getElementById('boxcount');
+  const cx = BOX_X+BOX_W/2;
+  if (total===0){
+    bc.classList.add('zero');
+    bc.innerHTML = `<tspan x="${cx}" dy="0">no one lives in a</tspan><tspan x="${cx}" dy="1.25em">county above $150k yet</tspan>`;
+    bc.setAttribute('y', MT+ih-34);
+  }
+  else {
+    bc.classList.remove('zero');
+    bc.textContent = (total>=1e6 ? (total/1e6).toFixed(1)+'M people' : Math.round(total/1000)+'k people');
+    bc.setAttribute('y', topy-8);
+  }
+  const ttag=document.getElementById('ttag');
+  if (d.seg[2]>0){ ttag.style.display=''; ttag.setAttribute('y', MT+ih-total/BOXMAX*ih+4); }
+  else ttag.style.display='none';
+  // median
+  const mx=ML+Math.min(Math.max(d.med-10000,0),140000)/140000*MAIN_W;
+  const med=document.getElementById('med'), medlbl=document.getElementById('medlbl');
+  med.setAttribute('x1',mx); med.setAttribute('x2',mx);
+  medlbl.setAttribute('x',mx+5); medlbl.textContent='the middle American: '+fmt$(d.med);
+}
+
+let year=1969, timer=null, stepMs=400;
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduced) stepMs=900;
+function stop(){clearInterval(timer);timer=null;playBtn.innerHTML='&#9654; Play';}
+function start(){
+  if(year>=2024)year=1969;
+  playBtn.innerHTML='&#10074;&#10074; Pause';
+  timer=setInterval(()=>{year++;render();if(year>=2024)stop();},stepMs);
+}
+playBtn.addEventListener('click',()=>timer?stop():start());
+scrub.addEventListener('input',e=>{stop();year=+e.target.value;render();});
+document.querySelectorAll('#speed button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#speed button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  stepMs=reduced?Math.max(+b.dataset.ms,900):+b.dataset.ms;
+  document.documentElement.style.setProperty('--dur',(stepMs*0.8/1000)+'s');
+  if(timer){stop();start();}
+}));
+document.documentElement.style.setProperty('--dur',(stepMs*0.8/1000)+'s');
+build(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Counties by Income per Resident, 1969&ndash;2024</title>
+<style>
+  :root{--paper:#FBFAF7; --ink:#1F1D1A; --faint:#8A8578; --rule:#E3DFD3; --teal:#085041; --gold:#B8860B; --verm:#D55E00; --dur:.4s;}
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:Georgia,'Times New Roman',serif; padding:20px 16px 12px;}
+  .wrap{max-width:860px; margin:0 auto;}
+  h1{font-size:clamp(20px,3.4vw,28px); font-weight:700; line-height:1.15;}
+  .sub{font-size:clamp(12px,1.8vw,14px); color:var(--faint); margin-top:6px; line-height:1.45; font-family:system-ui,sans-serif;}
+  .controls{display:flex; align-items:center; gap:12px; margin:14px 0 8px; font-family:system-ui,sans-serif; flex-wrap:wrap;}
+  button#play{background:var(--teal); color:var(--paper); border:none; border-radius:4px; padding:8px 18px; font-size:14px; font-weight:600; cursor:pointer; min-width:88px; font-family:inherit;}
+  input[type=range]{flex:1; accent-color:var(--teal); cursor:pointer; min-width:120px;}
+  .grp{display:flex; border:1px solid var(--rule); border-radius:4px; overflow:hidden;}
+  .grp button{background:var(--paper); color:var(--faint); border:none; padding:7px 11px; font-size:12.5px; cursor:pointer; font-family:inherit;}
+  .grp button + button{border-left:1px solid var(--rule);}
+  .grp button.on{background:var(--teal); color:var(--paper); font-weight:600;}
+  .legend{display:flex; gap:16px; font-family:system-ui,sans-serif; font-size:11.5px; margin:2px 0 6px; flex-wrap:wrap;}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .chip{width:11px; height:11px; border-radius:2px; display:inline-block;}
+  .stage{position:relative; border-top:1px solid var(--rule); padding-top:8px;}
+  .ghost{position:absolute; left:52px; top:16px; font-size:clamp(56px,11vw,96px); font-weight:700; color:var(--ink); opacity:0.07; line-height:1; pointer-events:none; font-variant-numeric:tabular-nums;}
+  svg{width:100%; height:auto; display:block;}
+  .bar{fill:#6F6A5D; transition:height var(--dur) ease, y var(--dur) ease;}
+  .seg{transition:height var(--dur) ease, y var(--dur) ease;}
+  .axis text{font-family:system-ui,sans-serif; font-size:11px; fill:var(--faint);}
+  .axis line{stroke:var(--rule);}
+  .medline{stroke:var(--ink); stroke-width:2; transition:x1 var(--dur) ease, x2 var(--dur) ease;}
+  .medlbl{font-family:system-ui,sans-serif; font-size:12px; font-weight:600; fill:var(--ink);}
+  .boxtitle{font-family:system-ui,sans-serif; font-size:11.5px; font-weight:700; fill:var(--ink);}
+  .boxnote{font-family:system-ui,sans-serif; font-size:10px; fill:var(--faint);}
+  .count{font-family:system-ui,sans-serif; font-size:15px; font-weight:700; fill:var(--ink); font-variant-numeric:tabular-nums;}
+  .count.zero{font-size:10.5px; font-weight:600;}
+  .tetontag{font-family:system-ui,sans-serif; font-size:10.5px; font-weight:700; fill:var(--verm);}
+  .blbl{font-family:system-ui,sans-serif; font-size:9.5px; fill:var(--faint); font-variant-numeric:tabular-nums;}
+  .slbl{font-family:system-ui,sans-serif; font-size:10.5px; font-weight:700; fill:var(--paper); font-variant-numeric:tabular-nums;}
+  .divider{stroke:var(--rule); stroke-dasharray:4 4;}
+  .foot{margin-top:12px; padding-top:10px; border-top:1px solid var(--rule); font-family:system-ui,sans-serif; font-size:10.5px; color:var(--faint); line-height:1.55;}
+  @media (max-width:520px){
+    input[type=range]{flex-basis:100%; order:5;}
+    body{padding:14px 10px 10px;}
+  }
+  @media (max-width:560px){
+    .axis text{font-size:20px;}
+    .blbl{display:none;}
+    .slbl{font-size:19px;}
+    .count{font-size:26px;}
+    .count.zero{font-size:15px;}
+    .boxtitle{font-size:20px;}
+    .boxnote{font-size:15px;}
+    .medlbl{font-size:21px;}
+    .tetontag{font-size:18px;}
+    .medline{stroke-width:3.5;}
+  }
+  @media (prefers-reduced-motion: reduce){ .bar,.seg,.medline{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>U.S. Counties by Income per Resident, 1969&ndash;2024</h1>
+  <div class="sub">U.S. counties grouped by income per resident, 1969&ndash;2024, in 2024 dollars. Each bar counts counties in a $10,000 range. The box on the right counts counties above $150,000, on its own magnified scale. Counties with at least 10,000 residents today. Press play.</div>
+
+  <div class="controls">
+    <button id="play">&#9654; Play</button>
+    <div class="grp" id="speed">
+      <button data-ms="700">1&times;</button><button data-ms="400" class="on">2&times;</button><button data-ms="200">3&times;</button>
+    </div>
+    <input type="range" id="scrub" min="1969" max="2024" value="1969" step="1" aria-label="Year">
+  </div>
+  <div class="legend">
+    <span><i class="chip" style="background:var(--teal)"></i>$150k&ndash;200k</span>
+    <span><i class="chip" style="background:var(--gold)"></i>$200k&ndash;300k</span>
+    <span><i class="chip" style="background:var(--verm)"></i>$300k+</span>
+  </div>
+
+  <div class="stage">
+    <div class="ghost" id="ghost">1969</div>
+    <svg id="chart" viewBox="0 0 860 430" role="img" aria-label="Animated histogram of county income per resident with a magnified panel for counties above 150 thousand dollars"></svg>
+  </div>
+
+  <div class="foot">
+    <b>Source:</b> Bureau of Economic Analysis, Local Area Personal Income table CAINC4 (per capita personal income, all sources), converted to 2024 dollars with the BLS CPI-U annual average. The $150k+ box uses its own count scale (0 to 12 counties) so its growth is visible; the main chart's scale reaches 1,450 counties. data4thepeople.com
+  </div>
+</div>
+
+<script>
+const PACK = {"frames":{"1969":{"c":[344,1327,626,62,10,1,0,0,0,0,0,0,0,0],"seg":[0,0,0],"med":26570,"teton":50000},"1970":{"c":[276,1387,632,63,8,4,0,0,0,0,0,0,0,0],"seg":[0,0,0],"med":26938,"teton":51157},"1971":{"c":[208,1355,716,75,11,4,1,0,0,0,0,0,0,0],"seg":[0,0,0],"med":27540,"teton":53745},"1972":{"c":[106,1179,941,121,18,4,1,0,0,0,0,0,0,0],"seg":[0,0,0],"med":29319,"teton":53996},"1973":{"c":[55,976,1077,231,22,7,2,0,0,0,0,0,0,0],"seg":[0,0,0],"med":31205,"teton":55528},"1974":{"c":[65,1061,1044,169,23,5,3,0,0,0,0,0,0,0],"seg":[0,0,0],"med":30428,"teton":55099},"1975":{"c":[70,1072,1029,170,19,6,3,0,1,0,0,0,0,0],"seg":[0,0,0],"med":30258,"teton":55825},"1976":{"c":[41,961,1148,190,21,4,4,1,0,0,0,0,0,0],"seg":[0,0,0],"med":31269,"teton":53667},"1977":{"c":[34,858,1208,231,29,5,5,0,0,0,0,0,0,0],"seg":[0,0,0],"med":32110,"teton":55679},"1978":{"c":[16,730,1243,335,32,9,4,1,0,0,0,0,0,0],"seg":[0,0,0],"med":33401,"teton":57141},"1979":{"c":[12,770,1253,289,36,8,5,0,0,0,0,0,0,0],"seg":[0,0,0],"med":33169,"teton":55369},"1980":{"c":[35,911,1174,203,39,8,3,0,0,0,0,0,0,0],"seg":[0,0,0],"med":31682,"teton":56501},"1981":{"c":[15,884,1206,218,39,8,2,1,0,0,0,0,0,0],"seg":[0,0,0],"med":32002,"teton":56527},"1982":{"c":[17,905,1198,207,35,6,5,0,1,0,0,0,0,0],"seg":[0,0,0],"med":31691,"teton":54997},"1983":{"c":[19,821,1236,241,38,14,6,0,0,0,0,0,0,0],"seg":[0,0,0],"med":32204,"teton":55983},"1984":{"c":[5,621,1323,349,56,15,5,1,0,0,0,0,0,0],"seg":[0,0,0],"med":33944,"teton":56793},"1985":{"c":[6,571,1316,382,73,18,8,1,0,0,0,0,0,0],"seg":[0,0,0],"med":34451,"teton":61743},"1986":{"c":[5,499,1296,449,93,24,7,2,0,0,0,0,0,0],"seg":[0,0,0],"med":35241,"teton":66629},"1987":{"c":[4,497,1289,448,101,24,10,1,1,0,0,0,0,0],"seg":[0,0,0],"med":35272,"teton":64315},"1988":{"c":[4,410,1299,492,121,34,12,2,0,1,0,0,0,0],"seg":[0,0,0],"med":35770,"teton":69198},"1989":{"c":[5,331,1263,584,138,36,16,2,0,0,1,0,0,0],"seg":[0,0,0],"med":36904,"teton":76263},"1990":{"c":[6,326,1306,555,131,30,17,3,1,0,0,1,0,0],"seg":[0,0,0],"med":36593,"teton":85270},"1991":{"c":[3,308,1412,497,103,34,15,2,1,1,0,0,0,0],"seg":[0,0,0],"med":36145,"teton":82276},"1992":{"c":[3,215,1356,623,124,32,16,6,0,0,1,0,0,0],"seg":[0,0,0],"med":37316,"teton":85632},"1993":{"c":[2,198,1368,624,124,36,17,5,1,0,1,0,0,0],"seg":[0,0,0],"med":37385,"teton":92895},"1994":{"c":[2,156,1275,741,138,38,19,4,2,0,1,0,0,0],"seg":[0,0,0],"med":38315,"teton":92904},"1995":{"c":[2,147,1273,734,152,39,19,6,3,0,0,1,0,0],"seg":[0,0,0],"med":38511,"teton":99794},"1996":{"c":[2,126,1135,859,175,45,21,9,1,2,0,1,0,0],"seg":[0,0,0],"med":39427,"teton":101553},"1997":{"c":[1,105,1067,905,202,52,30,9,1,3,0,0,1,0],"seg":[0,0,0],"med":40105,"teton":103735},"1998":{"c":[1,89,927,960,273,71,29,19,3,0,2,1,0,1],"seg":[0,0,0],"med":41361,"teton":117073},"1999":{"c":[1,80,888,983,287,79,26,19,8,1,1,2,0,1],"seg":[0,0,0],"med":41691,"teton":126831},"2000":{"c":[1,67,806,1015,331,79,40,21,7,5,0,1,1,1],"seg":[1,0,0],"med":42384,"teton":132430},"2001":{"c":[0,44,763,1055,342,84,45,24,10,5,0,0,2,1],"seg":[1,0,0],"med":42910,"teton":136736},"2002":{"c":[0,34,793,1033,343,99,37,20,12,2,0,1,2,0],"seg":[1,0,0],"med":42846,"teton":139634},"2003":{"c":[0,31,733,1061,371,106,37,20,11,3,0,1,1,1],"seg":[1,0,0],"med":43433,"teton":149337},"2004":{"c":[0,24,627,1090,430,117,40,25,14,6,0,1,0,2],"seg":[1,0,0],"med":44410,"teton":171299},"2005":{"c":[0,23,616,1098,421,126,42,23,13,10,1,1,0,0],"seg":[3,0,0],"med":44339,"teton":190266},"2006":{"c":[0,22,596,1061,450,131,57,23,14,14,4,1,1,0],"seg":[2,1,0],"med":44969,"teton":229355},"2007":{"c":[0,16,494,1069,530,145,58,26,15,15,5,0,1,0],"seg":[2,1,0],"med":45892,"teton":237414},"2008":{"c":[0,14,458,1049,561,175,57,29,14,10,4,1,2,0],"seg":[2,1,0],"med":46628,"teton":226675},"2009":{"c":[0,13,477,1121,513,155,49,24,10,10,2,0,1,0],"seg":[2,0,0],"med":45927,"teton":189659},"2010":{"c":[0,8,407,1111,579,160,65,18,13,10,2,1,1,0],"seg":[1,1,0],"med":46712,"teton":204084},"2011":{"c":[0,7,376,1047,609,215,64,25,15,11,3,2,0,1],"seg":[1,1,0],"med":47569,"teton":211172},"2012":{"c":[0,6,359,1029,613,234,62,33,16,11,7,2,1,1],"seg":[2,1,0],"med":47854,"teton":259864},"2013":{"c":[0,6,348,1040,633,216,66,32,13,12,4,3,1,0],"seg":[2,1,0],"med":48080,"teton":230860},"2014":{"c":[0,4,293,1024,662,241,76,31,20,13,3,4,2,0],"seg":[3,1,0],"med":48679,"teton":252696},"2015":{"c":[0,3,201,995,715,274,99,43,19,9,9,3,2,2],"seg":[2,1,0],"med":49914,"teton":248270},"2016":{"c":[0,3,205,997,714,277,92,40,20,11,10,1,1,3],"seg":[1,2,0],"med":49845,"teton":255728},"2017":{"c":[0,2,168,967,745,294,104,43,21,14,6,5,0,2],"seg":[4,2,0],"med":50442,"teton":281843},"2018":{"c":[0,2,145,914,773,320,110,49,25,18,6,4,3,0],"seg":[6,2,0],"med":51276,"teton":267942},"2019":{"c":[0,2,115,842,807,365,121,56,25,19,10,3,2,2],"seg":[5,2,1],"med":52322,"teton":318813},"2020":{"c":[0,2,37,575,939,503,178,59,32,21,15,4,3,1],"seg":[6,1,1],"med":55829,"teton":361944},"2021":{"c":[0,0,19,389,955,563,253,94,42,20,18,10,4,1],"seg":[4,4,1],"med":58058,"teton":417157},"2022":{"c":[0,2,56,667,879,438,170,75,29,28,9,8,5,1],"seg":[6,3,1],"med":54524,"teton":471644},"2023":{"c":[0,2,49,643,904,432,171,80,33,28,10,8,4,4],"seg":[5,3,1],"med":54870,"teton":515319},"2024":{"c":[0,1,42,567,922,467,197,86,37,25,13,9,6,3],"seg":[6,4,1],"med":55519,"teton":532903}},"ymax":1412};
+const W=860, H=430, ML=50, MT=30, MB=46;
+const MAIN_W = 600;           // main histogram inner width
+const GAP = 44;               // divider gap
+const BOX_X = ML+MAIN_W+GAP;  // overflow panel x
+const BOX_W = W-BOX_X-16;
+const YMAX = PACK.ymax*1.03, BOXMAX = 12;
+const NB = 14; // 10k..150k
+const ih = H-MT-MB;
+const svg=document.getElementById('chart'), ghost=document.getElementById('ghost'),
+      scrub=document.getElementById('scrub'), playBtn=document.getElementById('play');
+const COLORS=['#085041','#B8860B','#D55E00'];
+const fmt$ = v => '$' + Math.round(v).toLocaleString('en-US');
+const FMT_BAR = v => Math.round(v).toLocaleString('en-US');
+const FMT_SEG = v => Math.round(v);
+
+function build(){
+  const bw = MAIN_W/NB;
+  let s='<g class="axis">';
+  for (const g of [0,500,1000,1400]){
+    const y=MT+ih-(g/YMAX)*ih;
+    s+=`<line x1="${ML}" y1="${y}" x2="${ML+MAIN_W}" y2="${y}"/><text x="${ML-6}" y="${y+4}" text-anchor="end">${g.toLocaleString()}</text>`;
+  }
+  for (let v=10000; v<=150000; v+=20000){
+    const x=ML+((v-10000)/140000)*MAIN_W;
+    s+=`<text x="${x}" y="${H-MB+18}" text-anchor="middle">$${v/1000}k</text>`;
+  }
+  s+=`<text x="${ML}" y="${MT-12}" style="font-weight:600; fill:#1F1D1A">counties</text>`;
+  // box mini axis
+  for (const g of [0,4,8,12]){
+    const y=MT+ih-(g/BOXMAX)*ih;
+    s+=`<line x1="${BOX_X-4}" y1="${y}" x2="${BOX_X}" y2="${y}"/><text x="${BOX_X-8}" y="${y+4}" text-anchor="end">${g}</text>`;
+  }
+  s+='</g>';
+  s+=`<line class="divider" x1="${ML+MAIN_W+GAP/2}" y1="${MT-4}" x2="${ML+MAIN_W+GAP/2}" y2="${MT+ih}"/>`;
+  s+=`<text class="boxtitle" x="${BOX_X+BOX_W/2}" y="${MT-12}" text-anchor="middle">$150k and up</text>`;
+  s+=`<text class="boxnote" x="${BOX_X+BOX_W/2}" y="${MT+2}" text-anchor="middle">(own scale, 0&ndash;12)</text>`;
+  s+='<g id="bars">';
+  for (let i=0;i<NB;i++) s+=`<rect class="bar" x="${ML+i*bw+1}" width="${bw-2}" y="${MT+ih}" height="0"/>`;
+  s+='</g>';
+  s+='<g id="blbls">';
+  for (let i=0;i<NB;i++) s+=`<text class="blbl" x="${ML+i*bw+bw/2}" y="0" text-anchor="middle"></text>`;
+  s+='</g>';
+  for (let k=0;k<3;k++) s+=`<text class="slbl" id="slbl${k}" x="${BOX_X+BOX_W/2}" y="0" text-anchor="middle" style="display:none"></text>`;
+  for (let k=0;k<3;k++) s+=`<rect class="seg" id="seg${k}" x="${BOX_X+8}" width="${BOX_W-16}" y="${MT+ih}" height="0" fill="${COLORS[k]}"/>`;
+  s+=`<text class="count" id="boxcount" x="${BOX_X+BOX_W/2}" y="${MT+ih-6}" text-anchor="middle"></text>`;
+  s+=`<text class="tetontag" id="ttag" x="${BOX_X+BOX_W/2}" y="0" text-anchor="middle" style="display:none">Teton, WY</text>`;
+  s+=`<line class="medline" id="med" x1="${ML}" x2="${ML}" y1="${MT+ih}" y2="${MT+ih-46}"/>`;
+  s+=`<text class="medlbl" id="medlbl" x="${ML}" y="${MT+ih-54}"></text>`;
+  svg.innerHTML=s;
+}
+
+function render(){
+  const d=PACK.frames[year];
+  ghost.textContent=year; scrub.value=year;
+  const bw=MAIN_W/NB;
+  const bars=svg.querySelectorAll('#bars .bar');
+  const blbls=svg.querySelectorAll('#blbls .blbl');
+  d.c.forEach((cnt,i)=>{
+    const bh=(cnt/YMAX)*ih;
+    bars[i].setAttribute('height',bh); bars[i].setAttribute('y',MT+ih-bh);
+    if (cnt>=1){ blbls[i].textContent=FMT_BAR(cnt); blbls[i].setAttribute('y',MT+ih-bh-4); }
+    else blbls[i].textContent='';
+  });
+  // stacked box
+  let acc=0;
+  for (let k=0;k<3;k++){
+    const h=(d.seg[k]/BOXMAX)*ih;
+    const el=document.getElementById('seg'+k);
+    el.setAttribute('height',h);
+    el.setAttribute('y', MT+ih-(acc+d.seg[k])/BOXMAX*ih);
+    const sl=document.getElementById('slbl'+k), sh=(d.seg[k]/BOXMAX)*ih;
+    if (sh>=15){ sl.style.display=''; sl.textContent=FMT_SEG(d.seg[k]); sl.setAttribute('y', MT+ih-(acc+d.seg[k]/2)/BOXMAX*ih+4); }
+    else sl.style.display='none';
+    acc+=d.seg[k];
+  }
+  const total=d.seg[0]+d.seg[1]+d.seg[2];
+  const topy=MT+ih-(total/BOXMAX)*ih;
+  const bc=document.getElementById('boxcount');
+  const cx = BOX_X+BOX_W/2;
+  if (total===0){
+    bc.classList.add('zero');
+    bc.innerHTML = `<tspan x="${cx}" dy="0">no counties above</tspan><tspan x="${cx}" dy="1.25em">$150k yet</tspan>`;
+    bc.setAttribute('y', MT+ih-34);
+  }
+  else {
+    bc.classList.remove('zero');
+    bc.textContent = total + (total===1?' county':' counties');
+    bc.setAttribute('y', topy-8);
+  }
+  const ttag=document.getElementById('ttag');
+  if (d.seg[2]>0){ ttag.style.display=''; ttag.setAttribute('y', MT+ih-(total-d.seg[2]/2)/BOXMAX*ih+4); }
+  else ttag.style.display='none';
+  // median
+  const mx=ML+Math.min(Math.max(d.med-10000,0),140000)/140000*MAIN_W;
+  const med=document.getElementById('med'), medlbl=document.getElementById('medlbl');
+  med.setAttribute('x1',mx); med.setAttribute('x2',mx);
+  medlbl.setAttribute('x',mx+5); medlbl.textContent='median '+fmt$(d.med);
+}
+
+let year=1969, timer=null, stepMs=400;
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduced) stepMs=900;
+function stop(){clearInterval(timer);timer=null;playBtn.innerHTML='&#9654; Play';}
+function start(){
+  if(year>=2024)year=1969;
+  playBtn.innerHTML='&#10074;&#10074; Pause';
+  timer=setInterval(()=>{year++;render();if(year>=2024)stop();},stepMs);
+}
+playBtn.addEventListener('click',()=>timer?stop():start());
+scrub.addEventListener('input',e=>{stop();year=+e.target.value;render();});
+document.querySelectorAll('#speed button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#speed button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  stepMs=reduced?Math.max(+b.dataset.ms,900):+b.dataset.ms;
+  document.documentElement.style.setProperty('--dur',(stepMs*0.8/1000)+'s');
+  if(timer){stop();start();}
+}));
+document.documentElement.style.setProperty('--dur',(stepMs*0.8/1000)+'s');
+build(); render();
+</script>
+</body>
+</html>
