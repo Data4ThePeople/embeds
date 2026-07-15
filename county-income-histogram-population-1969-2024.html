@@ -35,7 +35,7 @@
   .count{font-family:system-ui,sans-serif; font-size:15px; font-weight:700; fill:var(--ink); font-variant-numeric:tabular-nums;}
   .count.zero{font-size:10.5px; font-weight:600;}
   .tetontag{font-family:system-ui,sans-serif; font-size:10.5px; font-weight:700; fill:var(--verm);}
-  .blbl{font-family:system-ui,sans-serif; font-size:9.5px; fill:var(--faint); font-variant-numeric:tabular-nums;}
+  .blbl{display:none;}
   .slbl{font-family:system-ui,sans-serif; font-size:10.5px; font-weight:700; fill:var(--paper); font-variant-numeric:tabular-nums;}
   .divider{stroke:var(--rule); stroke-dasharray:4 4;}
   .foot{margin-top:12px; padding-top:10px; border-top:1px solid var(--rule); font-family:system-ui,sans-serif; font-size:10.5px; color:var(--faint); line-height:1.55;}
@@ -45,7 +45,6 @@
   }
   @media (max-width:560px){
     .axis text{font-size:20px;}
-    .blbl{display:none;}
     .slbl{font-size:19px;}
     .count{font-size:26px;}
     .count.zero{font-size:15px;}
@@ -82,7 +81,7 @@
   </div>
 
   <div class="foot">
-    <b>Source:</b> Bureau of Economic Analysis, Local Area Personal Income table CAINC4 (per capita personal income, all sources), converted to 2024 dollars with the BLS CPI-U annual average. The y-axis counts people using each county's population. The $150k+ box uses its own scale (0 to 7 million people) so its growth is visible; the main chart's scale reaches 116 million. All 3,115 U.S. counties are included; none are excluded for size. The median marker shows the income per resident of the county where the middle American lives. data4thepeople.com
+    <b>Source:</b> Bureau of Economic Analysis, Local Area Personal Income table CAINC4 (per capita personal income, all sources), converted to 2024 dollars with the BLS CPI-U annual average. The y-axis counts people using each county's population. The $150k+ box uses its own scale so its growth is visible; the main chart's scale reaches 116 million. All 3,115 U.S. counties are included; none are excluded for size. The median marker shows the income per resident of the county where the middle American lives. data4thepeople.com
   </div>
 </div>
 
@@ -93,7 +92,7 @@ const MAIN_W = 600;           // main histogram inner width
 const GAP = 44;               // divider gap
 const BOX_X = ML+MAIN_W+GAP;  // overflow panel x
 const BOX_W = W-BOX_X-16;
-const YMAX = PACK.ymax*1.05, BOXMAX = PACK.boxmax*1.06;
+const YMAX = PACK.ymax*1.05, BOXMAX = PACK.boxmax*1.25;
 const NB = 14; // 10k..150k
 const ih = H-MT-MB;
 const svg=document.getElementById('chart'), ghost=document.getElementById('ghost'),
@@ -123,7 +122,7 @@ function build(){
   s+='</g>';
   s+=`<line class="divider" x1="${ML+MAIN_W+GAP/2}" y1="${MT-4}" x2="${ML+MAIN_W+GAP/2}" y2="${MT+ih}"/>`;
   s+=`<text class="boxtitle" x="${BOX_X+BOX_W/2}" y="${MT-12}" text-anchor="middle">$150k and up</text>`;
-  s+=`<text class="boxnote" x="${BOX_X+BOX_W/2}" y="${MT+2}" text-anchor="middle">(own scale, 0&ndash;7M people)</text>`;
+  s+=`<text class="boxnote" x="${BOX_X+BOX_W/2}" y="${MT+2}" text-anchor="middle">(own scale, 0&ndash;8M people)</text>`;
   s+='<g id="bars">';
   for (let i=0;i<NB;i++) s+=`<rect class="bar" x="${ML+i*bw+1}" width="${bw-2}" y="${MT+ih}" height="0"/>`;
   s+='</g>';
